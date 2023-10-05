@@ -170,12 +170,14 @@ def default_conv_loader(
 ) -> TYPE_CONV_MAPPING:
     mime_types_mapping: TYPE_CONV_MAPPING = {}
     try:
-        from langchain.document_loaders import TextLoader
+        from langchain.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
 
         mime_types_mapping.update(
             {
                 "text/text": TextLoader,
                 "text/plain": TextLoader,
+                "application/pdf": PyPDFLoader,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document": Docx2txtLoader
             }
         )
     except ImportError:
@@ -774,8 +776,12 @@ class GoogleDriveUtilities(Serializable, BaseModel):
                 info, scopes=scopes
             )
 
+        token_data = ""
+        with open(token_path, "r") as json_file:
+            token_data = json.load(json_file)
+
         creds = (
-            Credentials.from_authorized_user_info(info, scopes)
+            Credentials.from_authorized_user_info(token_data, scopes)
             if token_path.exists()
             else None
         )
