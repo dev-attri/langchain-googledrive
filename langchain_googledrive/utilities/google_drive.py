@@ -170,148 +170,19 @@ def default_conv_loader(
 ) -> TYPE_CONV_MAPPING:
     mime_types_mapping: TYPE_CONV_MAPPING = {}
     try:
-        from langchain.document_loaders import TextLoader, PyPDFLoader, Docx2txtLoader
+        from langchain.document_loaders import TextLoader, PyPDFium2Loader, Docx2txtLoader
 
         mime_types_mapping.update(
             {
                 "text/text": TextLoader,
                 "text/plain": TextLoader,
-                "application/pdf": PyPDFLoader,
+                "application/pdf": PyPDFium2Loader,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document": Docx2txtLoader
             }
         )
     except ImportError:
         # Ignore TextLoader
         logger.info("Ignore TextLoader for GDrive")
-
-    try:
-        from langchain.document_loaders import CSVLoader
-
-        mime_types_mapping.update(
-            {
-                "text/csv": CSVLoader,
-            }
-        )
-    except ImportError:
-        # Ignore CVS
-        logger.info("Ignore CSVLoader for GDrive")
-
-    try:
-        from langchain.document_loaders import NotebookLoader
-
-        mime_types_mapping.update(
-            {
-                "application/vnd.google.colaboratory": partial(
-                    lambda file_path: NotebookLoader(
-                        path=file_path, include_outputs=False, remove_newline=True
-                    )
-                ),  # Notebooks
-            }
-        )
-    except ImportError:
-        logger.info("Ignore NotebookLoader for GDrive")
-
-    try:
-        import pypandoc  # type: ignore
-        from langchain.document_loaders import UnstructuredRTFLoader
-
-        # pypandoc.ensure_pandoc_installed()
-
-        mime_types_mapping.update(
-            {
-                "application/rtf": UnstructuredRTFLoader,
-            }
-        )
-    except ImportError:
-        logger.info("Ignore RTF for GDrive (use `pip install pypandoc_binary`)")
-    try:
-        import unstructured  # noqa: F401 , type: ignore
-        from langchain.document_loaders import (
-            UnstructuredEPubLoader,
-            UnstructuredFileLoader,
-            UnstructuredHTMLLoader,
-            UnstructuredImageLoader,
-            UnstructuredMarkdownLoader,
-            UnstructuredODTLoader,
-            UnstructuredPDFLoader,
-            UnstructuredPowerPointLoader,
-            UnstructuredWordDocumentLoader,
-        )
-
-        try:
-            import detectron2  # noqa: F401 , type: ignore
-            import pdf2image  # type: ignore
-            import pytesseract  # type: ignore
-
-            mime_types_mapping.update(
-                {
-                    "image/png": partial(
-                        UnstructuredImageLoader, ocr_languages=ocr_languages
-                    ),
-                    "image/jpeg": partial(
-                        UnstructuredImageLoader, ocr_languages=ocr_languages
-                    ),
-                    "application/json": partial(
-                        UnstructuredFileLoader, ocr_languages=ocr_languages
-                    ),
-                }
-            )
-        except ImportError:
-            logger.info(
-                "Ignore Images for GDrive (no module named "
-                "'pdf2image', 'detectron2' and 'pytesseract')"
-            )
-
-        try:
-            import pypandoc  # noqa: F401, F811
-
-            mime_types_mapping.update(
-                {
-                    "application/epub+zip": UnstructuredEPubLoader,
-                }
-            )
-        except ImportError:
-            logger.info("Ignore Epub for GDrive (no module named 'pypandoc'")
-
-        try:
-            import pdf2image  # noqa: F401, F811
-            import pytesseract  # noqa: F401, F811
-
-            mime_types_mapping.update(
-                {
-                    "application/pdf": partial(
-                        UnstructuredPDFLoader, strategy=strategy, mode=mode
-                    ),
-                }
-            )
-        except ImportError:
-            logger.info(
-                "Ignore PDF for GDrive (no module named 'pdf2image' "
-                "and 'pytesseract'"
-            )
-
-        mime_types_mapping.update(
-            {
-                "text/html": UnstructuredHTMLLoader,
-                "text/markdown": UnstructuredMarkdownLoader,
-                "application/vnd.openxmlformats-officedocument."
-                "presentationml.presentation": partial(
-                    UnstructuredPowerPointLoader, mode=mode
-                ),  # PPTX
-                "application/vnd.openxmlformats-officedocument."
-                "wordprocessingml.document": partial(
-                    UnstructuredWordDocumentLoader, mode=mode
-                ),  # DOCX
-                # "application/vnd.openxmlformats-officedocument.
-                # spreadsheetml.sheet": # XLSX
-                "application/vnd.oasis.opendocument.text": UnstructuredODTLoader,
-            }
-        )
-    except ImportError:
-        logger.info(
-            "Ignore Unstructure*Loader for GDrive "
-            "(no module `unstructured[local-inference]`)"
-        )
 
     return mime_types_mapping
 
