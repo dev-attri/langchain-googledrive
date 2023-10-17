@@ -170,14 +170,20 @@ def default_conv_loader(
 ) -> TYPE_CONV_MAPPING:
     mime_types_mapping: TYPE_CONV_MAPPING = {}
     try:
-        from langchain.document_loaders import TextLoader, PyPDFium2Loader, Docx2txtLoader
+        from langchain.document_loaders import (
+            TextLoader,
+            PyPDFium2Loader,
+            Docx2txtLoader,
+            CSVLoader
+        )
 
         mime_types_mapping.update(
             {
                 "text/text": TextLoader,
                 "text/plain": TextLoader,
                 "application/pdf": PyPDFium2Loader,
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document": Docx2txtLoader
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document": Docx2txtLoader,
+                "text/csv": CSVLoader
             }
         )
     except ImportError:
